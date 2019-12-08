@@ -1,4 +1,5 @@
 import { Expense } from "./Expense";
+import { Eventing } from "./Eventing";
 
 export interface BudgetProps {
   totalBudget?: number;
@@ -7,10 +8,17 @@ export interface BudgetProps {
 export class Budget {
   balance: number = 0;
   expense: Expense = new Expense();
+  events: Eventing = new Eventing();
 
-  constructor(public data: BudgetProps) {}
+  constructor(public data: BudgetProps) {
+    this.bindChange();
+  }
 
-  //updating balancec
+  bindChange = (): void => {
+    this.updateBalance();
+  };
+
+  //updating balance
   updateBalance = (): void => {
     this.balance = this.data.totalBudget - this.expense.totalExpense;
   };

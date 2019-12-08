@@ -117,12 +117,47 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   }
 
   return newRequire;
-})({"ts/Model/Expense.ts":[function(require,module,exports) {
+})({"ts/Model/Eventing.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+
+var Eventing =
+/** @class */
+function () {
+  function Eventing() {
+    var _this = this;
+
+    this.events = {}; //registering events
+
+    this.on = function (eventName, callback) {
+      var handler = _this.events[eventName] || [];
+      handler.push(callback);
+      _this.events[eventName] = handler;
+    }; //trigger event
+
+
+    this.trigger = function (eventName) {
+      _this.events[eventName].forEach(function (callback) {
+        callback();
+      });
+    };
+  }
+
+  return Eventing;
+}();
+
+exports.Eventing = Eventing;
+},{}],"ts/Model/Expense.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var Eventing_1 = require("./Eventing");
 
 var Expense =
 /** @class */
@@ -131,7 +166,15 @@ function () {
     var _this = this;
 
     this.totalExpense = 0;
-    this.expenseList = []; //updating total expense
+    this.expenseList = [];
+    this.events = new Eventing_1.Eventing(); //bind change
+
+    this.bindChange = function () {
+      _this.events.on("change", function () {
+        _this.updateTotalExpense();
+      });
+    }; //updating total expense
+
 
     this.updateTotalExpense = function () {
       var expense = 0;
@@ -156,11 +199,10 @@ function () {
         _this.expenseList.push(item);
       } else {
         throw new Error("please enter correct data");
-      } //calculating budget and exp
+      } //trigger app change event
 
 
-      _this.updateTotalExpense(); // this.updateBalance();
-
+      _this.events.trigger("change");
     }; //remove list item from expense list
 
 
@@ -169,10 +211,10 @@ function () {
         return item.id === id;
       });
 
-      _this.expenseList.splice(index, 1); //calculating budget and exp
+      _this.expenseList.splice(index, 1); //trigger app change event
 
 
-      _this.updateTotalExpense();
+      _this.events.trigger("change");
     }; //update existing list item from expense list
 
 
@@ -186,18 +228,20 @@ function () {
         replaceWith.value = updatedItem.value;
       } else {
         throw new Error("trying to update the item which is not existed!");
-      } //calculating budget and exp
+      } //trigger app change event
 
 
-      _this.updateTotalExpense();
+      _this.events.trigger("change");
     };
+
+    this.bindChange();
   }
 
   return Expense;
 }();
 
 exports.Expense = Expense;
-},{}],"ts/Model/Budget.ts":[function(require,module,exports) {
+},{"./Eventing":"ts/Model/Eventing.ts"}],"ts/Model/Budget.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -205,6 +249,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 
 var Expense_1 = require("./Expense");
+
+var Eventing_1 = require("./Eventing");
 
 var Budget =
 /** @class */
@@ -214,11 +260,19 @@ function () {
 
     this.data = data;
     this.balance = 0;
-    this.expense = new Expense_1.Expense(); //updating balancec
+    this.expense = new Expense_1.Expense();
+    this.events = new Eventing_1.Eventing();
+
+    this.bindChange = function () {
+      _this.updateBalance();
+    }; //updating balance
+
 
     this.updateBalance = function () {
       _this.balance = _this.data.totalBudget - _this.expense.totalExpense;
     };
+
+    this.bindChange();
   }
 
   Object.defineProperty(Budget.prototype, "addListItem", {
@@ -247,7 +301,7 @@ function () {
 }();
 
 exports.Budget = Budget;
-},{"./Expense":"ts/Model/Expense.ts"}],"ts/app.ts":[function(require,module,exports) {
+},{"./Expense":"ts/Model/Expense.ts","./Eventing":"ts/Model/Eventing.ts"}],"ts/app.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {

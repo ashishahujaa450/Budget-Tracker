@@ -1,3 +1,5 @@
+import { Eventing } from "./Eventing";
+
 interface ExpenseList {
   title: string;
   value: number;
@@ -7,6 +9,19 @@ interface ExpenseList {
 export class Expense {
   totalExpense: number = 0;
   expenseList: ExpenseList[] = [];
+
+  events: Eventing = new Eventing();
+
+  constructor() {
+    this.bindChange();
+  }
+
+  //bind change
+  bindChange = (): void => {
+    this.events.on("change", () => {
+      this.updateTotalExpense();
+    });
+  };
 
   //updating total expense
   updateTotalExpense = (): void => {
@@ -33,9 +48,8 @@ export class Expense {
       throw new Error("please enter correct data");
     }
 
-    //calculating budget and exp
-    this.updateTotalExpense();
-    // this.updateBalance();
+    //trigger app change event
+    this.events.trigger("change");
   };
 
   //remove list item from expense list
@@ -46,8 +60,8 @@ export class Expense {
 
     this.expenseList.splice(index, 1);
 
-    //calculating budget and exp
-    this.updateTotalExpense();
+    //trigger app change event
+    this.events.trigger("change");
   };
 
   //update existing list item from expense list
@@ -63,7 +77,7 @@ export class Expense {
       throw new Error("trying to update the item which is not existed!");
     }
 
-    //calculating budget and exp
-    this.updateTotalExpense();
+    //trigger app change event
+    this.events.trigger("change");
   };
 }

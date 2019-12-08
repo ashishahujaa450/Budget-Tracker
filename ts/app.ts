@@ -1,5 +1,4 @@
 import { Budget } from "./Model/Budget";
-
 const item = new Budget({ totalBudget: 5000 });
 
 item.addListItem({
