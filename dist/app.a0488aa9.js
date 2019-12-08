@@ -117,12 +117,94 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   }
 
   return newRequire;
-})({"ts/Model/Budget.ts":[function(require,module,exports) {
+})({"ts/Model/Expense.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+
+var Expense =
+/** @class */
+function () {
+  function Expense() {
+    var _this = this;
+
+    this.totalExpense = 0;
+    this.expenseList = []; //updating total expense
+
+    this.updateTotalExpense = function () {
+      var expense = 0;
+
+      _this.expenseList.forEach(function (item) {
+        expense += item.value;
+      });
+
+      _this.totalExpense = expense;
+    }; //add list item to expense list
+
+
+    this.addListItem = function (item) {
+      if (item.value && item.title) {
+        //attach unique id
+        if (_this.expenseList.length > 0) {
+          item.id = _this.expenseList[_this.expenseList.length - 1].id + 1;
+        } else {
+          item.id = 0;
+        }
+
+        _this.expenseList.push(item);
+      } else {
+        throw new Error("please enter correct data");
+      } //calculating budget and exp
+
+
+      _this.updateTotalExpense(); // this.updateBalance();
+
+    }; //remove list item from expense list
+
+
+    this.removeListItem = function (id) {
+      var index = _this.expenseList.findIndex(function (item) {
+        return item.id === id;
+      });
+
+      _this.expenseList.splice(index, 1); //calculating budget and exp
+
+
+      _this.updateTotalExpense();
+    }; //update existing list item from expense list
+
+
+    this.updateListItem = function (id, updatedItem) {
+      var replaceWith = _this.expenseList.find(function (item) {
+        return item.id === id;
+      });
+
+      if (replaceWith) {
+        replaceWith.title = updatedItem.title;
+        replaceWith.value = updatedItem.value;
+      } else {
+        throw new Error("trying to update the item which is not existed!");
+      } //calculating budget and exp
+
+
+      _this.updateTotalExpense();
+    };
+  }
+
+  return Expense;
+}();
+
+exports.Expense = Expense;
+},{}],"ts/Model/Budget.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var Expense_1 = require("./Expense");
 
 var Budget =
 /** @class */
@@ -130,29 +212,42 @@ function () {
   function Budget(data) {
     var _this = this;
 
-    this.data = data; //updating balancec
+    this.data = data;
+    this.balance = 0;
+    this.expense = new Expense_1.Expense(); //updating balancec
 
     this.updateBalance = function () {
-      _this.balance = _this.data.totalBudget - _this.totalExpense;
-    }; //updating total expense
-
-
-    this.updateTotalExpense = function () {
-      var expense = 0;
-
-      _this.data.expenseList.forEach(function (item) {
-        expense += item.expenseValue;
-      });
-
-      _this.totalExpense = expense;
+      _this.balance = _this.data.totalBudget - _this.expense.totalExpense;
     };
   }
 
+  Object.defineProperty(Budget.prototype, "addListItem", {
+    //delegating methods to expense class
+    get: function get() {
+      return this.expense.addListItem;
+    },
+    enumerable: true,
+    configurable: true
+  });
+  Object.defineProperty(Budget.prototype, "removeListItem", {
+    get: function get() {
+      return this.expense.removeListItem;
+    },
+    enumerable: true,
+    configurable: true
+  });
+  Object.defineProperty(Budget.prototype, "updateListItem", {
+    get: function get() {
+      return this.expense.updateListItem;
+    },
+    enumerable: true,
+    configurable: true
+  });
   return Budget;
 }();
 
 exports.Budget = Budget;
-},{}],"ts/app.ts":[function(require,module,exports) {
+},{"./Expense":"ts/Model/Expense.ts"}],"ts/app.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -162,20 +257,37 @@ Object.defineProperty(exports, "__esModule", {
 var Budget_1 = require("./Model/Budget");
 
 var item = new Budget_1.Budget({
-  totalBudget: 5000,
-  expenseList: [{
-    expenseTitle: "value one",
-    expenseValue: 1000
-  }, {
-    expenseTitle: "another one",
-    expenseValue: 1500
-  }, {
-    expenseTitle: "new title",
-    expenseValue: 500
-  }]
+  totalBudget: 5000
 });
-item.updateTotalExpense();
-item.updateBalance();
+item.addListItem({
+  title: "attached item",
+  value: 100
+});
+item.addListItem({
+  title: "exp",
+  value: 500
+});
+item.addListItem({
+  title: "new attached item",
+  value: 2100
+});
+item.addListItem({
+  title: "car purchase",
+  value: 200
+});
+item.addListItem({
+  title: "laptop accessories",
+  value: 150
+});
+item.removeListItem(3);
+item.addListItem({
+  title: "final exp",
+  value: 500
+});
+item.updateListItem(2, {
+  title: "updatedTitle",
+  value: 2100
+});
 console.log(item);
 },{"./Model/Budget":"ts/Model/Budget.ts"}],"C:/Users/De-coder/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
@@ -205,7 +317,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "55254" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "57795" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

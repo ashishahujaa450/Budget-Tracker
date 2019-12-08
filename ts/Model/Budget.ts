@@ -1,31 +1,30 @@
-interface ExpenseList {
-  expenseTitle: string;
-  expenseValue: number;
-}
+import { Expense } from "./Expense";
 
-interface BudgetProps {
+export interface BudgetProps {
   totalBudget?: number;
-  expenseList: ExpenseList[];
 }
 
 export class Budget {
-  totalExpense: number;
-  balance: number;
+  balance: number = 0;
+  expense: Expense = new Expense();
 
   constructor(public data: BudgetProps) {}
 
   //updating balancec
   updateBalance = (): void => {
-    this.balance = this.data.totalBudget - this.totalExpense;
+    this.balance = this.data.totalBudget - this.expense.totalExpense;
   };
 
-  //updating total expense
-  updateTotalExpense = (): void => {
-    let expense: number = 0;
-    this.data.expenseList.forEach(item => {
-      expense += item.expenseValue;
-    });
+  //delegating methods to expense class
+  get addListItem() {
+    return this.expense.addListItem;
+  }
 
-    this.totalExpense = expense;
-  };
+  get removeListItem() {
+    return this.expense.removeListItem;
+  }
+
+  get updateListItem() {
+    return this.expense.updateListItem;
+  }
 }
