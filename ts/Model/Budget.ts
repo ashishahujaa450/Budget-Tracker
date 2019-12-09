@@ -1,38 +1,38 @@
 import { Expense } from "./Expense";
-import { Eventing } from "./Eventing";
 
 export interface BudgetProps {
   totalBudget?: number;
 }
 
 export class Budget {
-  balance: number = 0;
-  expense: Expense = new Expense();
-  events: Eventing = new Eventing();
+  public balance: number = 0;
+  private expense: Expense = new Expense();
 
   constructor(public data: BudgetProps) {
     this.bindChange();
   }
 
-  bindChange = (): void => {
-    this.updateBalance();
+  private bindChange = (): void => {
+    this.expense.events.on("change", () => {
+      this.updateBalance();
+    });
   };
 
   //updating balance
-  updateBalance = (): void => {
+  private updateBalance = (): void => {
     this.balance = this.data.totalBudget - this.expense.totalExpense;
   };
 
   //delegating methods to expense class
-  get addListItem() {
+  public get addListItem() {
     return this.expense.addListItem;
   }
 
-  get removeListItem() {
+  public get removeListItem() {
     return this.expense.removeListItem;
   }
 
-  get updateListItem() {
+  public get updateListItem() {
     return this.expense.updateListItem;
   }
 }

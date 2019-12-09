@@ -7,24 +7,23 @@ interface ExpenseList {
 }
 
 export class Expense {
-  totalExpense: number = 0;
-  expenseList: ExpenseList[] = [];
-
-  events: Eventing = new Eventing();
+  public totalExpense: number = 0;
+  public expenseList: ExpenseList[] = [];
+  public events: Eventing = new Eventing();
 
   constructor() {
     this.bindChange();
   }
 
   //bind change
-  bindChange = (): void => {
+  private bindChange = (): void => {
     this.events.on("change", () => {
       this.updateTotalExpense();
     });
   };
 
   //updating total expense
-  updateTotalExpense = (): void => {
+  private updateTotalExpense = (): void => {
     let expense: number = 0;
     this.expenseList.forEach(item => {
       expense += item.value;
@@ -34,7 +33,7 @@ export class Expense {
   };
 
   //add list item to expense list
-  addListItem = (item: ExpenseList): void => {
+  public addListItem = (item: ExpenseList): void => {
     if (item.value && item.title) {
       //attach unique id
       if (this.expenseList.length > 0) {
@@ -53,7 +52,7 @@ export class Expense {
   };
 
   //remove list item from expense list
-  removeListItem = (id: number): void => {
+  public removeListItem = (id: number): void => {
     const index = this.expenseList.findIndex(
       (item: ExpenseList): boolean => item.id === id
     );
@@ -65,7 +64,7 @@ export class Expense {
   };
 
   //update existing list item from expense list
-  updateListItem = (id: number, updatedItem: ExpenseList): void => {
+  public updateListItem = (id: number, updatedItem: ExpenseList): void => {
     const replaceWith = this.expenseList.find(
       (item: ExpenseList): boolean => item.id === id
     );

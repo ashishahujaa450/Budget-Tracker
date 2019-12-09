@@ -33,6 +33,8 @@ item.addListItem({
   value: 500
 });
 
+item.removeListItem(4);
+
 item.updateListItem(2, { title: "updatedTitle", value: 2100 });
 
 console.log(item);

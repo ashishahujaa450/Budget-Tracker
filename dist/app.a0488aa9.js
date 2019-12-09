@@ -140,9 +140,15 @@ function () {
 
 
     this.trigger = function (eventName) {
-      _this.events[eventName].forEach(function (callback) {
-        callback();
-      });
+      var handler = _this.events[eventName];
+
+      if (handler) {
+        handler.forEach(function (callback) {
+          callback();
+        });
+      } else {
+        throw new Error("event not found");
+      }
     };
   }
 
@@ -250,8 +256,6 @@ Object.defineProperty(exports, "__esModule", {
 
 var Expense_1 = require("./Expense");
 
-var Eventing_1 = require("./Eventing");
-
 var Budget =
 /** @class */
 function () {
@@ -261,10 +265,11 @@ function () {
     this.data = data;
     this.balance = 0;
     this.expense = new Expense_1.Expense();
-    this.events = new Eventing_1.Eventing();
 
     this.bindChange = function () {
-      _this.updateBalance();
+      _this.expense.events.on("change", function () {
+        _this.updateBalance();
+      });
     }; //updating balance
 
 
@@ -301,7 +306,7 @@ function () {
 }();
 
 exports.Budget = Budget;
-},{"./Expense":"ts/Model/Expense.ts","./Eventing":"ts/Model/Eventing.ts"}],"ts/app.ts":[function(require,module,exports) {
+},{"./Expense":"ts/Model/Expense.ts"}],"ts/app.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -338,6 +343,7 @@ item.addListItem({
   title: "final exp",
   value: 500
 });
+item.removeListItem(4);
 item.updateListItem(2, {
   title: "updatedTitle",
   value: 2100
@@ -371,7 +377,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "57795" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "63048" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
