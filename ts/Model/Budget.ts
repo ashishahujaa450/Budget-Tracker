@@ -6,7 +6,7 @@ export interface BudgetProps {
 
 export class Budget {
   public balance: number = 0;
-  private expense: Expense = new Expense();
+  public expense: Expense = new Expense();
 
   constructor(public data: BudgetProps) {
     this.bindChange();
