@@ -4,11 +4,11 @@ export interface BudgetProps {
   totalBudget?: number;
 }
 
-export class Budget {
+export class Budget<T extends BudgetProps> {
   public balance: number = 0;
   public expense: Expense = new Expense();
 
-  constructor(public data: BudgetProps) {
+  constructor(public data: T) {
     this.bindChange();
   }
 

@@ -117,239 +117,153 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   }
 
   return newRequire;
-})({"ts/Model/Eventing.ts":[function(require,module,exports) {
+})({"ts/View/View.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var Eventing =
+var View =
 /** @class */
 function () {
-  function Eventing() {
-    var _this = this;
+  function View(parent) {
+    this.parent = parent;
+  }
 
-    this.events = {}; //registering events
+  View.prototype.eventsBind = function (fragment) {
+    var eventDetail = this.eventsMap();
 
-    this.on = function (eventName, callback) {
-      var handler = _this.events[eventName] || [];
-      handler.push(callback);
-      _this.events[eventName] = handler;
-    }; //trigger event
+    var _loop_1 = function _loop_1(key) {
+      var _a = key.split(":"),
+          eventName = _a[0],
+          selector = _a[1];
 
+      fragment.querySelectorAll(selector).forEach(function (element) {
+        element.addEventListener(eventName, eventDetail[key]);
+      });
+    };
 
-    this.trigger = function (eventName) {
-      var handler = _this.events[eventName];
+    for (var key in eventDetail) {
+      _loop_1(key);
+    }
+  };
 
-      if (handler) {
-        handler.forEach(function (callback) {
-          callback();
-        });
-      } else {
-        throw new Error("event not found");
+  View.prototype.render = function () {
+    var template = document.createElement("template");
+    template.innerHTML = this.template(); //binding event
+
+    this.eventsBind(template.content);
+    this.parent.append(template.content);
+  };
+
+  return View;
+}();
+
+exports.View = View;
+},{}],"ts/View/BudgetView.ts":[function(require,module,exports) {
+"use strict";
+
+var __extends = this && this.__extends || function () {
+  var _extendStatics = function extendStatics(d, b) {
+    _extendStatics = Object.setPrototypeOf || {
+      __proto__: []
+    } instanceof Array && function (d, b) {
+      d.__proto__ = b;
+    } || function (d, b) {
+      for (var p in b) {
+        if (b.hasOwnProperty(p)) d[p] = b[p];
       }
     };
-  }
 
-  return Eventing;
+    return _extendStatics(d, b);
+  };
+
+  return function (d, b) {
+    _extendStatics(d, b);
+
+    function __() {
+      this.constructor = d;
+    }
+
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+  };
 }();
-
-exports.Eventing = Eventing;
-},{}],"ts/Model/Expense.ts":[function(require,module,exports) {
-"use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var Eventing_1 = require("./Eventing");
+var View_1 = require("./View");
 
-var Expense =
+var BudgetView =
 /** @class */
-function () {
-  function Expense() {
-    var _this = this;
+function (_super) {
+  __extends(BudgetView, _super);
 
-    this.totalExpense = 0;
-    this.expenseList = [];
-    this.events = new Eventing_1.Eventing(); //bind change
-
-    this.bindChange = function () {
-      _this.events.on("change", function () {
-        _this.updateTotalExpense();
-      });
-    }; //updating total expense
-
-
-    this.updateTotalExpense = function () {
-      var expense = 0;
-
-      _this.expenseList.forEach(function (item) {
-        expense += item.value;
-      });
-
-      _this.totalExpense = expense;
-    }; //add list item to expense list
-
-
-    this.addListItem = function (item) {
-      if (item.value && item.title) {
-        //attach unique id
-        if (_this.expenseList.length > 0) {
-          item.id = _this.expenseList[_this.expenseList.length - 1].id + 1;
-        } else {
-          item.id = 0;
-        }
-
-        _this.expenseList.push(item);
-      } else {
-        throw new Error("please enter correct data");
-      } //trigger app change event
-
-
-      _this.events.trigger("change");
-    }; //remove list item from expense list
-
-
-    this.removeListItem = function (id) {
-      var index = _this.expenseList.findIndex(function (item) {
-        return item.id === id;
-      });
-
-      _this.expenseList.splice(index, 1); //trigger app change event
-
-
-      _this.events.trigger("change");
-    }; //update existing list item from expense list
-
-
-    this.updateListItem = function (id, updatedItem) {
-      var replaceWith = _this.expenseList.find(function (item) {
-        return item.id === id;
-      });
-
-      if (replaceWith) {
-        replaceWith.title = updatedItem.title;
-        replaceWith.value = updatedItem.value;
-      } else {
-        throw new Error("trying to update the item which is not existed!");
-      } //trigger app change event
-
-
-      _this.events.trigger("change");
-    };
-
-    this.bindChange();
+  function BudgetView() {
+    return _super !== null && _super.apply(this, arguments) || this;
   }
 
-  return Expense;
-}();
+  BudgetView.prototype.eventsMap = function () {
+    return {
+      "click: .budget-submit": this.onBudgetClick
+    };
+  };
 
-exports.Expense = Expense;
-},{"./Eventing":"ts/Model/Eventing.ts"}],"ts/Model/Budget.ts":[function(require,module,exports) {
+  BudgetView.prototype.onBudgetClick = function (event) {
+    event.preventDefault();
+    console.log("btn clicked");
+  };
+
+  BudgetView.prototype.template = function () {
+    return "\n    <form id=\"budget-form\" class=\" budget-form\">\n        <h5 class=\"text-capitalize\">please enter your budget</h5>\n        <div class=\"form-group\">\n        <input type=\"number\" class=\"form-control budget-input\" id=\"budget-input\">\n        </div>\n        <!-- submit button -->\n        <button type=\"submit\" class=\"btn text-capitalize budget-submit\" id=\"budget-submit\">\n        calculate\n        </button>\n    </form>\n      ";
+  };
+
+  return BudgetView;
+}(View_1.View);
+
+exports.BudgetView = BudgetView;
+},{"./View":"ts/View/View.ts"}],"ts/app.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
-});
+}); // const item = new Budget({ totalBudget: 5000 });
+// item.addListItem({
+//   title: "attached item",
+//   value: 100
+// });
+// item.addListItem({
+//   title: "exp",
+//   value: 500
+// });
+// item.addListItem({
+//   title: "new attached item",
+//   value: 2100
+// });
+// item.addListItem({
+//   title: "car purchase",
+//   value: 200
+// });
+// item.addListItem({
+//   title: "laptop accessories",
+//   value: 150
+// });
+// item.removeListItem(3);
+// item.addListItem({
+//   title: "final exp",
+//   value: 500
+// });
+// item.removeListItem(4);
+// item.updateListItem(2, { title: "updatedTitle", value: 2100 });
+// console.log(item);
 
-var Expense_1 = require("./Expense");
+var BudgetView_1 = require("./View/BudgetView");
 
-var Budget =
-/** @class */
-function () {
-  function Budget(data) {
-    var _this = this;
-
-    this.data = data;
-    this.balance = 0;
-    this.expense = new Expense_1.Expense();
-
-    this.bindChange = function () {
-      _this.expense.events.on("change", function () {
-        _this.updateBalance();
-      });
-    }; //updating balance
-
-
-    this.updateBalance = function () {
-      _this.balance = _this.data.totalBudget - _this.expense.totalExpense;
-    };
-
-    this.bindChange();
-  }
-
-  Object.defineProperty(Budget.prototype, "addListItem", {
-    //delegating methods to expense class
-    get: function get() {
-      return this.expense.addListItem;
-    },
-    enumerable: true,
-    configurable: true
-  });
-  Object.defineProperty(Budget.prototype, "removeListItem", {
-    get: function get() {
-      return this.expense.removeListItem;
-    },
-    enumerable: true,
-    configurable: true
-  });
-  Object.defineProperty(Budget.prototype, "updateListItem", {
-    get: function get() {
-      return this.expense.updateListItem;
-    },
-    enumerable: true,
-    configurable: true
-  });
-  return Budget;
-}();
-
-exports.Budget = Budget;
-},{"./Expense":"ts/Model/Expense.ts"}],"ts/app.ts":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var Budget_1 = require("./Model/Budget");
-
-var item = new Budget_1.Budget({
-  totalBudget: 5000
-});
-item.addListItem({
-  title: "attached item",
-  value: 100
-});
-item.addListItem({
-  title: "exp",
-  value: 500
-});
-item.addListItem({
-  title: "new attached item",
-  value: 2100
-});
-item.addListItem({
-  title: "car purchase",
-  value: 200
-});
-item.addListItem({
-  title: "laptop accessories",
-  value: 150
-});
-item.removeListItem(3);
-item.addListItem({
-  title: "final exp",
-  value: 500
-});
-item.removeListItem(4);
-item.updateListItem(2, {
-  title: "updatedTitle",
-  value: 2100
-});
-console.log(item);
-},{"./Model/Budget":"ts/Model/Budget.ts"}],"C:/Users/De-coder/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+var view = new BudgetView_1.BudgetView(document.getElementById("budgetView"));
+view.render();
+},{"./View/BudgetView":"ts/View/BudgetView.ts"}],"C:/Users/De-coder/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -377,7 +291,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "63048" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "53157" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
