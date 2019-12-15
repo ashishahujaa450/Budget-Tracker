@@ -1,7 +1,9 @@
 import { Budget } from "./../Model/Budget";
 
 export abstract class View<T extends Budget> {
-  constructor(public parent: Element, public model: Budget) {}
+  constructor(public parent: Element, public model: Budget) {
+    this.checkChange();
+  }
 
   abstract template(): string;
   abstract eventsMap(): { [key: string]: (event: Event) => void };
@@ -18,7 +20,14 @@ export abstract class View<T extends Budget> {
     }
   }
 
+  checkChange(): void {
+    this.model.on("change", () => {
+      this.render();
+    });
+  }
+
   render(): void {
+    this.parent.innerHTML = "";
     const template = document.createElement("template");
 
     template.innerHTML = this.template();

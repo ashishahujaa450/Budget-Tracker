@@ -217,8 +217,9 @@ function () {
         return item.id === id;
       });
 
-      _this.expenseList.splice(index, 1); //trigger app change event
+      var item = _this.expenseList.splice(index, 1);
 
+      console.log(item); //trigger app change event
 
       _this.events.trigger("change");
     }; //update existing list item from expense list
@@ -333,6 +334,7 @@ function () {
   function View(parent, model) {
     this.parent = parent;
     this.model = model;
+    this.checkChange();
   }
 
   View.prototype.eventsBind = function (fragment) {
@@ -353,7 +355,16 @@ function () {
     }
   };
 
+  View.prototype.checkChange = function () {
+    var _this = this;
+
+    this.model.on("change", function () {
+      _this.render();
+    });
+  };
+
   View.prototype.render = function () {
+    this.parent.innerHTML = "";
     var template = document.createElement("template");
     template.innerHTML = this.template(); //binding event
 
@@ -582,19 +593,29 @@ function (_super) {
   __extends(ExpenseListingView, _super);
 
   function ExpenseListingView() {
-    return _super !== null && _super.apply(this, arguments) || this;
+    var _this = _super !== null && _super.apply(this, arguments) || this;
+
+    _this.deleteListItemFromView = function (e) {
+      var itemId = e.target.parentElement.getAttribute("data-id");
+
+      _this.model.expense.removeListItem(parseInt(itemId));
+    };
+
+    return _this;
   }
 
   ExpenseListingView.prototype.template = function () {
     var html = "";
     this.model.expense.expenseList.forEach(function (item) {
-      html += "\n       <div class=\"expense\">\n        <div class=\"expense-item d-flex justify-content-between align-items-baseline\">\n\n        <h6 class=\"expense-title mb-0 text-uppercase list-item\">" + item.title + "</h6>\n        <h5 class=\"expense-amount mb-0 list-item\">" + item.value + "</h5>\n\n        <div class=\"expense-icons list-item\">\n\n        <a href=\"#\" class=\"edit-icon mx-2\" data-id=\"" + item.id + "\">\n        <i class=\"fas fa-edit\"></i>\n        </a>\n        <a href=\"#\" class=\"delete-icon\" data-id=\"" + item.id + "\">\n        <i class=\"fas fa-trash\"></i>\n        </a>\n        </div>\n        </div>\n    </div>    \n       ";
+      html += "\n       <div class=\"expense\">\n        <div class=\"expense-item d-flex justify-content-between align-items-baseline\">\n\n        <h6 class=\"expense-title mb-0 text-uppercase list-item text-left\">" + item.title + "</h6>\n        <h5 class=\"expense-amount mb-0 list-item\">" + item.value + "</h5>\n\n        <div class=\"expense-icons list-item\">\n\n        <a href=\"#\" class=\"edit-icon mx-2\" data-id=\"" + item.id + "\">\n        <i class=\"fas fa-edit\"></i>\n        </a>\n        <a href=\"#\" class=\"delete-icon\" data-id=\"" + item.id + "\">\n        <i class=\"fas fa-trash\"></i>\n        </a>\n        </div>\n        </div>\n    </div>    \n       ";
     });
     return html;
   };
 
   ExpenseListingView.prototype.eventsMap = function () {
-    return {};
+    return {
+      "click: .delete-icon": this.deleteListItemFromView
+    };
   };
 
   return ExpenseListingView;

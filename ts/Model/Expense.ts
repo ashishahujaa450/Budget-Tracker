@@ -57,7 +57,9 @@ export class Expense {
       (item: ExpenseList): boolean => item.id === id
     );
 
-    this.expenseList.splice(index, 1);
+    const item = this.expenseList.splice(index, 1);
+
+    console.log(item);
 
     //trigger app change event
     this.events.trigger("change");
