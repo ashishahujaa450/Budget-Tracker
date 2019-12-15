@@ -59,8 +59,6 @@ export class Expense {
 
     const item = this.expenseList.splice(index, 1);
 
-    console.log(item);
-
     //trigger app change event
     this.events.trigger("change");
   };

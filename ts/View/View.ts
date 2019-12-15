@@ -26,6 +26,14 @@ export abstract class View<T extends Budget> {
     });
   }
 
+  validator = (value: string): boolean => {
+    if (value && value.length) {
+      return true;
+    } else {
+      return false;
+    }
+  };
+
   render(): void {
     this.parent.innerHTML = "";
     const template = document.createElement("template");

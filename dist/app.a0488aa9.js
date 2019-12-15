@@ -217,9 +217,8 @@ function () {
         return item.id === id;
       });
 
-      var item = _this.expenseList.splice(index, 1);
+      var item = _this.expenseList.splice(index, 1); //trigger app change event
 
-      console.log(item); //trigger app change event
 
       _this.events.trigger("change");
     }; //update existing list item from expense list
@@ -334,6 +333,15 @@ function () {
   function View(parent, model) {
     this.parent = parent;
     this.model = model;
+
+    this.validator = function (value) {
+      if (value && value.length) {
+        return true;
+      } else {
+        return false;
+      }
+    };
+
     this.checkChange();
   }
 
@@ -473,19 +481,28 @@ function (_super) {
   __extends(BudgetView, _super);
 
   function BudgetView() {
-    return _super !== null && _super.apply(this, arguments) || this;
+    var _this = _super !== null && _super.apply(this, arguments) || this;
+
+    _this.onBudgetClick = function (event) {
+      event.preventDefault();
+      var inputValue = document.getElementById("budget-input").value;
+
+      if (_this.validator(inputValue)) {
+        _this.model.data.totalBudget = parseInt(inputValue);
+
+        _this.model.trigger("change");
+      } else {
+        alert("please enter correct value");
+      }
+    };
+
+    return _this;
   }
 
   BudgetView.prototype.eventsMap = function () {
     return {
       "click: .budget-submit": this.onBudgetClick
     };
-  };
-
-  BudgetView.prototype.onBudgetClick = function (event) {
-    event.preventDefault();
-    console.log("btn clicked");
-    console.log(this.model);
   };
 
   BudgetView.prototype.template = function () {
@@ -537,7 +554,28 @@ function (_super) {
   __extends(ExpenseAdderView, _super);
 
   function ExpenseAdderView() {
-    return _super !== null && _super.apply(this, arguments) || this;
+    var _this = _super !== null && _super.apply(this, arguments) || this;
+
+    _this.addExpense = function () {
+      var expenseTitleValue = document.getElementById("expense-input").value;
+      var expenseAmountValue = document.getElementById("amount-input").value;
+
+      if (_this.validator(expenseTitleValue) && _this.validator(expenseAmountValue)) {
+        //change the model
+        var expenseItem = {
+          title: expenseTitleValue,
+          value: parseInt(expenseAmountValue)
+        };
+
+        _this.model.expense.addListItem(expenseItem);
+
+        _this.model.trigger("change");
+      } else {
+        alert("please enter correct data");
+      }
+    };
+
+    return _this;
   }
 
   ExpenseAdderView.prototype.template = function () {
@@ -545,7 +583,9 @@ function (_super) {
   };
 
   ExpenseAdderView.prototype.eventsMap = function () {
-    return {};
+    return {
+      "click: .expense-submit": this.addExpense
+    };
   };
 
   return ExpenseAdderView;
@@ -633,46 +673,15 @@ var Budget_1 = require("./Model/Budget");
 
 var DashboardView_1 = require("./View/DashboardView");
 
-var item = new Budget_1.Budget({
-  totalBudget: 5000
-});
-item.addListItem({
-  title: "attached item",
-  value: 100
-});
-item.addListItem({
-  title: "exp",
-  value: 500
-});
-item.addListItem({
-  title: "new attached item",
-  value: 2100
-});
-item.addListItem({
-  title: "car purchase",
-  value: 200
-});
-item.addListItem({
-  title: "laptop accessories",
-  value: 150
-});
-item.removeListItem(3);
-item.addListItem({
-  title: "final exp",
-  value: 500
-});
-item.removeListItem(4);
-item.updateListItem(2, {
-  title: "updatedTitle",
-  value: 2100
-});
-
 var BudgetView_1 = require("./View/BudgetView");
 
 var ExpenseAdderView_1 = require("./View/ExpenseAdderView");
 
 var ExpenseListingView_1 = require("./View/ExpenseListingView");
 
+var item = new Budget_1.Budget({
+  totalBudget: 0
+});
 var view = new BudgetView_1.BudgetView(document.getElementById("budgetView"), item);
 var dashboard = new DashboardView_1.DashboardView(document.getElementById("dashboardView"), item);
 var expenseAdder = new ExpenseAdderView_1.ExpenseAdderView(document.getElementById("expenseAdderView"), item);
@@ -709,7 +718,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "56900" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "61095" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

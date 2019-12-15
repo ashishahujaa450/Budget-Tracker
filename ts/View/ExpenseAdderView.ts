@@ -22,6 +22,33 @@ export class ExpenseAdderView extends View<Budget> {
   }
 
   eventsMap(): { [key: string]: (event: Event) => void } {
-    return {};
+    return {
+      "click: .expense-submit": this.addExpense
+    };
   }
+
+  addExpense = (): void => {
+    const expenseTitleValue = (<HTMLInputElement>(
+      document.getElementById("expense-input")
+    )).value;
+    const expenseAmountValue = (<HTMLInputElement>(
+      document.getElementById("amount-input")
+    )).value;
+
+    if (
+      this.validator(expenseTitleValue) &&
+      this.validator(expenseAmountValue)
+    ) {
+      //change the model
+      const expenseItem = {
+        title: expenseTitleValue,
+        value: parseInt(expenseAmountValue)
+      };
+
+      this.model.expense.addListItem(expenseItem);
+      this.model.trigger("change");
+    } else {
+      alert("please enter correct data");
+    }
+  };
 }

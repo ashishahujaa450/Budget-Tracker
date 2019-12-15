@@ -1,5 +1,5 @@
 import { View } from "./View";
-import { Budget, BudgetProps } from "./../Model/Budget";
+import { Budget } from "./../Model/Budget";
 
 export class BudgetView extends View<Budget> {
   eventsMap(): { [key: string]: (event: Event) => void } {
@@ -8,11 +8,18 @@ export class BudgetView extends View<Budget> {
     };
   }
 
-  onBudgetClick(event: Event): void {
+  onBudgetClick = (event: Event): void => {
     event.preventDefault();
-    console.log("btn clicked");
-    console.log(this.model);
-  }
+
+    var inputValue = (<HTMLInputElement>document.getElementById("budget-input"))
+      .value;
+    if (this.validator(inputValue)) {
+      this.model.data.totalBudget = parseInt(inputValue);
+      this.model.trigger("change");
+    } else {
+      alert("please enter correct value");
+    }
+  };
 
   template(): string {
     return `
