@@ -1,7 +1,7 @@
 import { Budget } from "./../Model/Budget";
 
-export abstract class View {
-  constructor(public parent: Element) {}
+export abstract class View<T extends Budget> {
+  constructor(public parent: Element, public model: Budget) {}
 
   abstract template(): string;
   abstract eventsMap(): { [key: string]: (event: Event) => void };

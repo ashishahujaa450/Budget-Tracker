@@ -4,16 +4,16 @@ export interface BudgetProps {
   totalBudget?: number;
 }
 
-export class Budget<T extends BudgetProps> {
+export class Budget {
   public balance: number = 0;
   public expense: Expense = new Expense();
 
-  constructor(public data: T) {
+  constructor(public data: BudgetProps) {
     this.bindChange();
   }
 
   private bindChange = (): void => {
-    this.expense.events.on("change", () => {
+    this.on("change", () => {
       this.updateBalance();
     });
   };
@@ -34,5 +34,13 @@ export class Budget<T extends BudgetProps> {
 
   public get updateListItem() {
     return this.expense.updateListItem;
+  }
+
+  public get on() {
+    return this.expense.events.on;
+  }
+
+  public get trigger() {
+    return this.expense.events.trigger;
   }
 }

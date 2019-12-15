@@ -1,7 +1,7 @@
 import { View } from "./View";
 import { Budget, BudgetProps } from "./../Model/Budget";
 
-export class BudgetView extends View {
+export class BudgetView extends View<Budget> {
   eventsMap(): { [key: string]: (event: Event) => void } {
     return {
       "click: .budget-submit": this.onBudgetClick
@@ -11,6 +11,7 @@ export class BudgetView extends View {
   onBudgetClick(event: Event): void {
     event.preventDefault();
     console.log("btn clicked");
+    console.log(this.model);
   }
 
   template(): string {
