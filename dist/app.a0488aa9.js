@@ -342,8 +342,28 @@ var View =
 /** @class */
 function () {
   function View(parent, model) {
+    var _this = this;
+
     this.parent = parent;
     this.model = model;
+    this.regions = {};
+
+    this.regionsMap = function () {
+      return {};
+    };
+
+    this.mapRegions = function (fragment) {
+      var regionsMap = _this.regionsMap();
+
+      for (var key in regionsMap) {
+        var selector = regionsMap[key];
+        var element = fragment.querySelector(selector);
+
+        if (element) {
+          _this.regions[key] = element;
+        }
+      }
+    };
 
     this.validator = function (value) {
       if (value && value.length) {
@@ -374,6 +394,8 @@ function () {
     }
   };
 
+  View.prototype.onRender = function () {};
+
   View.prototype.checkChange = function () {
     var _this = this;
 
@@ -383,11 +405,17 @@ function () {
   };
 
   View.prototype.render = function () {
-    this.parent.innerHTML = "";
+    this.parent.innerHTML = ""; //creating template
+
     var template = document.createElement("template");
     template.innerHTML = this.template(); //binding event
 
-    this.eventsBind(template.content);
+    this.eventsBind(template.content); //region
+
+    this.mapRegions(template.content); //render all views nesting
+
+    this.onRender(); //appending html
+
     this.parent.append(template.content);
   };
 
@@ -699,7 +727,90 @@ function (_super) {
 }(View_1.View);
 
 exports.ExpenseListingView = ExpenseListingView;
-},{"./View":"ts/View/View.ts"}],"ts/app.ts":[function(require,module,exports) {
+},{"./View":"ts/View/View.ts"}],"ts/View/AppView.ts":[function(require,module,exports) {
+"use strict";
+
+var __extends = this && this.__extends || function () {
+  var _extendStatics = function extendStatics(d, b) {
+    _extendStatics = Object.setPrototypeOf || {
+      __proto__: []
+    } instanceof Array && function (d, b) {
+      d.__proto__ = b;
+    } || function (d, b) {
+      for (var p in b) {
+        if (b.hasOwnProperty(p)) d[p] = b[p];
+      }
+    };
+
+    return _extendStatics(d, b);
+  };
+
+  return function (d, b) {
+    _extendStatics(d, b);
+
+    function __() {
+      this.constructor = d;
+    }
+
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+  };
+}();
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var View_1 = require("./View");
+
+var DashboardView_1 = require("./DashboardView");
+
+var BudgetView_1 = require("./BudgetView");
+
+var ExpenseAdderView_1 = require("./ExpenseAdderView");
+
+var ExpenseListingView_1 = require("./ExpenseListingView");
+
+var AppView =
+/** @class */
+function (_super) {
+  __extends(AppView, _super);
+
+  function AppView() {
+    var _this = _super !== null && _super.apply(this, arguments) || this;
+
+    _this.regionsMap = function () {
+      return {
+        BudgetView: "#budgetView",
+        DashboardView: "#dashboardView",
+        ExpenseAdderView: "#expenseAdderView",
+        ExpenseListingView: "#expense-list"
+      };
+    };
+
+    _this.onRender = function () {
+      console.log(_this.regions);
+      new BudgetView_1.BudgetView(_this.regions.BudgetView, _this.model).render();
+      new DashboardView_1.DashboardView(_this.regions.DashboardView, _this.model).render();
+      new ExpenseAdderView_1.ExpenseAdderView(_this.regions.ExpenseAdderView, _this.model).render();
+      new ExpenseListingView_1.ExpenseListingView(_this.regions.ExpenseListingView, _this.model).render();
+    };
+
+    return _this;
+  }
+
+  AppView.prototype.template = function () {
+    return "\n   \n        <div class=\"row\">\n            <div class=\"col-11 mx-auto pt-3\">\n                <!-- title -->\n                <h3 class=\"text-uppercase mb-4\">budget app</h3>\n                <div class=\"row\">\n                    <div class=\"col-md-5 my-3 budget-view\" id=\"budgetView\">\n                        <!-- budget feedback -->\n                        <div class=\"budget-feedback alert alert-danger text-capitalize\">\n                            budget feedback\n                        </div>\n                        <!-- budget form -->\n                    </div>\n                    <div class=\"col-md-7\" id=\"dashboardView\">\n                        <!-- app info -->\n                    </div>\n                </div>\n\n                <div class=\"row\">\n                    <div class=\"col-md-5 my-3\" id=\"expenseAdderView\">\n                        <!-- expense feedback -->\n                        <div class=\"expense-feedback alert alert-danger text-capitalize\">\n                            expense feedback\n                        </div>\n                        <!-- expense form -->\n                    </div>\n                    <div class=\"col-md-7 my-3\">\n                        <!-- expense list -->\n                        <div class=\"expense-list\" id=\"expense-list\">\n                            <div class=\"expense-list__info d-flex justify-content-between text-capitalize\">\n                                <h5 class=\"list-item\">expense title</h5>\n                                <h5 class=\"list-item\">expense value</h5>\n                                <h5 class=\"list-item\"></h5>\n                            </div>\n                        </div>\n                    </div>\n                </div>\n            </div>\n        </div>\n      ";
+  };
+
+  AppView.prototype.eventsMap = function () {
+    return {};
+  };
+
+  return AppView;
+}(View_1.View);
+
+exports.AppView = AppView;
+},{"./View":"ts/View/View.ts","./DashboardView":"ts/View/DashboardView.ts","./BudgetView":"ts/View/BudgetView.ts","./ExpenseAdderView":"ts/View/ExpenseAdderView.ts","./ExpenseListingView":"ts/View/ExpenseListingView.ts"}],"ts/app.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -708,26 +819,14 @@ Object.defineProperty(exports, "__esModule", {
 
 var Budget_1 = require("./Model/Budget");
 
-var DashboardView_1 = require("./View/DashboardView");
-
-var BudgetView_1 = require("./View/BudgetView");
-
-var ExpenseAdderView_1 = require("./View/ExpenseAdderView");
-
-var ExpenseListingView_1 = require("./View/ExpenseListingView");
+var AppView_1 = require("./View/AppView");
 
 var item = new Budget_1.Budget({
   totalBudget: 0
 });
-var view = new BudgetView_1.BudgetView(document.getElementById("budgetView"), item);
-var dashboard = new DashboardView_1.DashboardView(document.getElementById("dashboardView"), item);
-var expenseAdder = new ExpenseAdderView_1.ExpenseAdderView(document.getElementById("expenseAdderView"), item);
-var expenseListing = new ExpenseListingView_1.ExpenseListingView(document.getElementById("expense-list"), item);
-view.render();
-dashboard.render();
-expenseAdder.render();
-expenseListing.render();
-},{"./Model/Budget":"ts/Model/Budget.ts","./View/DashboardView":"ts/View/DashboardView.ts","./View/BudgetView":"ts/View/BudgetView.ts","./View/ExpenseAdderView":"ts/View/ExpenseAdderView.ts","./View/ExpenseListingView":"ts/View/ExpenseListingView.ts"}],"C:/Users/jtuser/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+var app = new AppView_1.AppView(document.getElementById("AppRoot"), item);
+app.render();
+},{"./Model/Budget":"ts/Model/Budget.ts","./View/AppView":"ts/View/AppView.ts"}],"C:/Users/jtuser/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
