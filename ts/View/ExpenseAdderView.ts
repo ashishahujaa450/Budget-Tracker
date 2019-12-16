@@ -1,5 +1,6 @@
 import { View } from "./View";
 import { Budget } from "../Model/Budget";
+import { ExpenseList } from "../Model/Expense";
 
 export class ExpenseAdderView extends View<Budget> {
   template(): string {
@@ -28,6 +29,7 @@ export class ExpenseAdderView extends View<Budget> {
   }
 
   addExpense = (): void => {
+    //getting dom data
     const expenseTitleValue = (<HTMLInputElement>(
       document.getElementById("expense-input")
     )).value;
@@ -35,20 +37,32 @@ export class ExpenseAdderView extends View<Budget> {
       document.getElementById("amount-input")
     )).value;
 
+    const expenseId = document
+      .getElementById("expense-input")
+      .getAttribute("data-id");
+    const expenseItem: ExpenseList = {};
+
+    //validate data first
     if (
       this.validator(expenseTitleValue) &&
       this.validator(expenseAmountValue)
     ) {
-      //change the model
-      const expenseItem = {
-        title: expenseTitleValue,
-        value: parseInt(expenseAmountValue)
-      };
-
-      this.model.expense.addListItem(expenseItem);
-      this.model.trigger("change");
+      if (expenseId) {
+        //add item with id
+        expenseItem.title = expenseTitleValue;
+        expenseItem.value = parseInt(expenseAmountValue);
+        expenseItem.id = parseInt(expenseId);
+      } else {
+        //add item without id
+        expenseItem.title = expenseTitleValue;
+        expenseItem.value = parseInt(expenseAmountValue);
+      }
     } else {
       alert("please enter correct data");
     }
+
+    //add item to model and indicating model
+    this.model.expense.addListItem(expenseItem);
+    this.model.trigger("change");
   };
 }

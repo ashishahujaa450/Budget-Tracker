@@ -27,5 +27,3 @@ view.render();
 dashboard.render();
 expenseAdder.render();
 expenseListing.render();
-
-console.log("test commit from another account");
