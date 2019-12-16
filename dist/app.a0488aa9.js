@@ -788,7 +788,6 @@ function (_super) {
     };
 
     _this.onRender = function () {
-      console.log(_this.regions);
       new BudgetView_1.BudgetView(_this.regions.BudgetView, _this.model).render();
       new DashboardView_1.DashboardView(_this.regions.DashboardView, _this.model).render();
       new ExpenseAdderView_1.ExpenseAdderView(_this.regions.ExpenseAdderView, _this.model).render();

@@ -65,7 +65,6 @@ export class AppView extends View<Budget> {
   };
 
   onRender = (): void => {
-    console.log(this.regions);
     new BudgetView(this.regions.BudgetView, this.model).render();
     new DashboardView(this.regions.DashboardView, this.model).render();
     new ExpenseAdderView(this.regions.ExpenseAdderView, this.model).render();
