@@ -32,12 +32,34 @@ export class ExpenseListingView extends View<Budget> {
 
   eventsMap(): { [key: string]: (event: Event) => void } {
     return {
-      "click: .delete-icon": this.deleteListItemFromView
+      "click: .delete-icon": this.deleteListItemFromView,
+      "click: .edit-icon": this.editListItemFromView
     };
   }
 
   deleteListItemFromView = (e): void => {
     const itemId: string = e.target.parentElement.getAttribute("data-id");
     this.model.expense.removeListItem(parseInt(itemId));
+  };
+
+  editListItemFromView = (e): void => {
+    const itemId: string = e.target.parentElement.getAttribute("data-id");
+
+    const expenseInput = <HTMLInputElement>(
+      document.getElementById("expense-input")
+    );
+
+    //will fix this any type
+    const expenseValue: any = document.getElementById("amount-input");
+
+    //finding item with the id from the expense list
+    const item = this.model.expense.expenseList.find((current): boolean => {
+      return current.id === parseInt(itemId);
+    });
+
+    //updaing ui
+    expenseInput.value = item.title;
+    expenseValue.value = item.value;
+    expenseInput.setAttribute("data-id", item.id.toString());
   };
 }

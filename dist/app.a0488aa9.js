@@ -194,17 +194,28 @@ function () {
 
 
     this.addListItem = function (item) {
-      if (item.value && item.title) {
-        //attach unique id
-        if (_this.expenseList.length > 0) {
-          item.id = _this.expenseList[_this.expenseList.length - 1].id + 1;
-        } else {
-          item.id = 0;
-        }
+      //checking if already have id than just update the existed item
+      if (item.id >= 0) {
+        var currentItem = _this.expenseList.find(function (elm) {
+          return elm.id === item.id;
+        }); //update item to current item
 
-        _this.expenseList.push(item);
+
+        Object.assign(currentItem, item);
       } else {
-        throw new Error("please enter correct data");
+        //else add new itme
+        if (item.value && item.title) {
+          //attach unique id
+          if (_this.expenseList.length > 0) {
+            item.id = _this.expenseList[_this.expenseList.length - 1].id + 1;
+          } else {
+            item.id = 0;
+          }
+
+          _this.expenseList.push(item);
+        } else {
+          throw new Error("please enter correct data");
+        }
       } //trigger app change event
 
 
@@ -557,22 +568,31 @@ function (_super) {
     var _this = _super !== null && _super.apply(this, arguments) || this;
 
     _this.addExpense = function () {
+      //getting dom data
       var expenseTitleValue = document.getElementById("expense-input").value;
       var expenseAmountValue = document.getElementById("amount-input").value;
+      var expenseId = document.getElementById("expense-input").getAttribute("data-id");
+      var expenseItem = {}; //validate data first
 
       if (_this.validator(expenseTitleValue) && _this.validator(expenseAmountValue)) {
-        //change the model
-        var expenseItem = {
-          title: expenseTitleValue,
-          value: parseInt(expenseAmountValue)
-        };
-
-        _this.model.expense.addListItem(expenseItem);
-
-        _this.model.trigger("change");
+        if (expenseId) {
+          //add item with id
+          expenseItem.title = expenseTitleValue;
+          expenseItem.value = parseInt(expenseAmountValue);
+          expenseItem.id = parseInt(expenseId);
+        } else {
+          //add item without id
+          expenseItem.title = expenseTitleValue;
+          expenseItem.value = parseInt(expenseAmountValue);
+        }
       } else {
         alert("please enter correct data");
-      }
+      } //add item to model and indicating model
+
+
+      _this.model.expense.addListItem(expenseItem);
+
+      _this.model.trigger("change");
     };
 
     return _this;
@@ -641,6 +661,22 @@ function (_super) {
       _this.model.expense.removeListItem(parseInt(itemId));
     };
 
+    _this.editListItemFromView = function (e) {
+      var itemId = e.target.parentElement.getAttribute("data-id");
+      var expenseInput = document.getElementById("expense-input"); //will fix this any type
+
+      var expenseValue = document.getElementById("amount-input"); //finding item with the id from the expense list
+
+      var item = _this.model.expense.expenseList.find(function (current) {
+        return current.id === parseInt(itemId);
+      }); //updaing ui
+
+
+      expenseInput.value = item.title;
+      expenseValue.value = item.value;
+      expenseInput.setAttribute("data-id", item.id.toString());
+    };
+
     return _this;
   }
 
@@ -654,7 +690,8 @@ function (_super) {
 
   ExpenseListingView.prototype.eventsMap = function () {
     return {
-      "click: .delete-icon": this.deleteListItemFromView
+      "click: .delete-icon": this.deleteListItemFromView,
+      "click: .edit-icon": this.editListItemFromView
     };
   };
 
@@ -690,7 +727,6 @@ view.render();
 dashboard.render();
 expenseAdder.render();
 expenseListing.render();
-console.log("test commit from another account");
 },{"./Model/Budget":"ts/Model/Budget.ts","./View/DashboardView":"ts/View/DashboardView.ts","./View/BudgetView":"ts/View/BudgetView.ts","./View/ExpenseAdderView":"ts/View/ExpenseAdderView.ts","./View/ExpenseListingView":"ts/View/ExpenseListingView.ts"}],"C:/Users/jtuser/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';

@@ -1,8 +1,8 @@
 import { Eventing } from "./Eventing";
 
-interface ExpenseList {
-  title: string;
-  value: number;
+export interface ExpenseList {
+  title?: string;
+  value?: number;
   id?: number;
 }
 
@@ -34,17 +34,25 @@ export class Expense {
 
   //add list item to expense list
   public addListItem = (item: ExpenseList): void => {
-    if (item.value && item.title) {
-      //attach unique id
-      if (this.expenseList.length > 0) {
-        item.id = this.expenseList[this.expenseList.length - 1].id + 1;
-      } else {
-        item.id = 0;
-      }
-
-      this.expenseList.push(item);
+    //checking if already have id than just update the existed item
+    if (item.id >= 0) {
+      const currentItem = this.expenseList.find(elm => elm.id === item.id);
+      //update item to current item
+      Object.assign(currentItem, item);
     } else {
-      throw new Error("please enter correct data");
+      //else add new itme
+      if (item.value && item.title) {
+        //attach unique id
+        if (this.expenseList.length > 0) {
+          item.id = this.expenseList[this.expenseList.length - 1].id + 1;
+        } else {
+          item.id = 0;
+        }
+
+        this.expenseList.push(item);
+      } else {
+        throw new Error("please enter correct data");
+      }
     }
 
     //trigger app change event
