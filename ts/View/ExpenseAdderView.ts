@@ -62,7 +62,7 @@ export class ExpenseAdderView extends View<Budget> {
     }
 
     //add item to model and indicating model
-    this.model.expense.addListItem(expenseItem);
+    this.model.expense.list.addListItem(expenseItem, "expense");
     this.model.trigger("change");
   };
 }

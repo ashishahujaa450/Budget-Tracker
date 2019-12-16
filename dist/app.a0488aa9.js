@@ -156,7 +156,7 @@ function () {
 }();
 
 exports.Eventing = Eventing;
-},{}],"ts/Model/Expense.ts":[function(require,module,exports) {
+},{}],"ts/Model/List.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -165,38 +165,24 @@ Object.defineProperty(exports, "__esModule", {
 
 var Eventing_1 = require("./Eventing");
 
-var Expense =
+var List =
 /** @class */
 function () {
-  function Expense() {
+  function List() {
     var _this = this;
 
-    this.totalExpense = 0;
     this.expenseList = [];
-    this.events = new Eventing_1.Eventing(); //bind change
+    this.events = new Eventing_1.Eventing();
+    this.incomeList = [];
+    this.listing = {
+      expenseListing: this.expenseList,
+      incomeListing: this.incomeList
+    };
 
-    this.bindChange = function () {
-      _this.events.on("change", function () {
-        _this.updateTotalExpense();
-      });
-    }; //updating total expense
-
-
-    this.updateTotalExpense = function () {
-      var expense = 0;
-
-      _this.expenseList.forEach(function (item) {
-        expense += item.value;
-      });
-
-      _this.totalExpense = expense;
-    }; //add list item to expense list
-
-
-    this.addListItem = function (item) {
+    this.addListItem = function (item, type) {
       //checking if already have id than just update the existed item
       if (item.id >= 0) {
-        var currentItem = _this.expenseList.find(function (elm) {
+        var currentItem = _this.listing[type + "Listing"].find(function (elm) {
           return elm.id === item.id;
         }); //update item to current item
 
@@ -206,13 +192,13 @@ function () {
         //else add new itme
         if (item.value && item.title) {
           //attach unique id
-          if (_this.expenseList.length > 0) {
-            item.id = _this.expenseList[_this.expenseList.length - 1].id + 1;
+          if (_this.listing[type + "Listing"].length > 0) {
+            item.id = _this.listing[type + "Listing"][_this.listing[type + "Listing"].length - 1].id + 1;
           } else {
             item.id = 0;
           }
 
-          _this.expenseList.push(item);
+          _this.listing[type + "Listing"].push(item);
         } else {
           throw new Error("please enter correct data");
         }
@@ -223,20 +209,20 @@ function () {
     }; //remove list item from expense list
 
 
-    this.removeListItem = function (id) {
-      var index = _this.expenseList.findIndex(function (item) {
+    this.removeListItem = function (id, type) {
+      var index = _this.listing[type + "Listing"].findIndex(function (item) {
         return item.id === id;
       });
 
-      var item = _this.expenseList.splice(index, 1); //trigger app change event
+      var item = _this.listing[type + "Listing"].splice(index, 1); //trigger app change event
 
 
       _this.events.trigger("change");
     }; //update existing list item from expense list
 
 
-    this.updateListItem = function (id, updatedItem) {
-      var replaceWith = _this.expenseList.find(function (item) {
+    this.updateListItem = function (id, updatedItem, type) {
+      var replaceWith = _this.listing[type + "Listing"].find(function (item) {
         return item.id === id;
       });
 
@@ -249,6 +235,49 @@ function () {
 
 
       _this.events.trigger("change");
+    };
+  }
+
+  return List;
+}();
+
+exports.List = List;
+},{"./Eventing":"ts/Model/Eventing.ts"}],"ts/Model/Expense.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var Eventing_1 = require("./Eventing");
+
+var List_1 = require("./List");
+
+var Expense =
+/** @class */
+function () {
+  function Expense() {
+    var _this = this;
+
+    this.totalExpense = 0;
+    this.events = new Eventing_1.Eventing();
+    this.list = new List_1.List(); //bind change
+
+    this.bindChange = function () {
+      _this.list.events.on("change", function () {
+        _this.updateTotalExpense();
+      });
+    }; //updating total expense
+
+
+    this.updateTotalExpense = function () {
+      var expense = 0;
+
+      _this.list.expenseList.forEach(function (item) {
+        expense += item.value;
+      });
+
+      _this.totalExpense = expense;
     };
 
     this.bindChange();
@@ -258,7 +287,7 @@ function () {
 }();
 
 exports.Expense = Expense;
-},{"./Eventing":"ts/Model/Eventing.ts"}],"ts/Model/Income.ts":[function(require,module,exports) {
+},{"./Eventing":"ts/Model/Eventing.ts","./List":"ts/Model/List.ts"}],"ts/Model/Income.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -267,6 +296,8 @@ Object.defineProperty(exports, "__esModule", {
 
 var Eventing_1 = require("./Eventing");
 
+var List_1 = require("./List");
+
 var Income =
 /** @class */
 function () {
@@ -274,83 +305,24 @@ function () {
     var _this = this;
 
     this.totalIncome = 0;
-    this.IncomeList = [];
-    this.events = new Eventing_1.Eventing(); //bind change
+    this.events = new Eventing_1.Eventing();
+    this.list = new List_1.List(); //bind change
 
     this.bindChange = function () {
-      _this.events.on("change", function () {
+      _this.list.events.on("change", function () {
         _this.updateTotalIncome();
       });
     }; //updating total expense
 
 
     this.updateTotalIncome = function () {
-      var expense = 0;
+      var income = 0;
 
-      _this.IncomeList.forEach(function (item) {
-        expense += item.value;
+      _this.list.incomeList.forEach(function (item) {
+        income += item.value;
       });
 
-      _this.totalIncome = expense;
-    }; //add list item to expense list
-
-
-    this.addListItem = function (item) {
-      //checking if already have id than just update the existed item
-      if (item.id >= 0) {
-        var currentItem = _this.IncomeList.find(function (elm) {
-          return elm.id === item.id;
-        }); //update item to current item
-
-
-        Object.assign(currentItem, item);
-      } else {
-        //else add new itme
-        if (item.value && item.title) {
-          //attach unique id
-          if (_this.IncomeList.length > 0) {
-            item.id = _this.IncomeList[_this.IncomeList.length - 1].id + 1;
-          } else {
-            item.id = 0;
-          }
-
-          _this.IncomeList.push(item);
-        } else {
-          throw new Error("please enter correct data");
-        }
-      } //trigger app change event
-
-
-      _this.events.trigger("change");
-    }; //remove list item from expense list
-
-
-    this.removeListItem = function (id) {
-      var index = _this.IncomeList.findIndex(function (item) {
-        return item.id === id;
-      });
-
-      var item = _this.IncomeList.splice(index, 1); //trigger app change event
-
-
-      _this.events.trigger("change");
-    }; //update existing list item from expense list
-
-
-    this.updateListItem = function (id, updatedItem) {
-      var replaceWith = _this.IncomeList.find(function (item) {
-        return item.id === id;
-      });
-
-      if (replaceWith) {
-        replaceWith.title = updatedItem.title;
-        replaceWith.value = updatedItem.value;
-      } else {
-        throw new Error("trying to update the item which is not existed!");
-      } //trigger app change event
-
-
-      _this.events.trigger("change");
+      _this.totalIncome = income;
     };
 
     this.bindChange();
@@ -360,7 +332,7 @@ function () {
 }();
 
 exports.Income = Income;
-},{"./Eventing":"ts/Model/Eventing.ts"}],"ts/Model/Budget.ts":[function(require,module,exports) {
+},{"./Eventing":"ts/Model/Eventing.ts","./List":"ts/Model/List.ts"}],"ts/Model/Budget.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -399,35 +371,35 @@ function () {
   Object.defineProperty(Budget.prototype, "addListItem", {
     //delegating methods to expense class
     get: function get() {
-      return this.expense.addListItem;
+      return this.expense.list.addListItem;
     },
     enumerable: true,
     configurable: true
   });
   Object.defineProperty(Budget.prototype, "removeListItem", {
     get: function get() {
-      return this.expense.removeListItem;
+      return this.expense.list.removeListItem;
     },
     enumerable: true,
     configurable: true
   });
   Object.defineProperty(Budget.prototype, "updateListItem", {
     get: function get() {
-      return this.expense.updateListItem;
+      return this.expense.list.updateListItem;
     },
     enumerable: true,
     configurable: true
   });
   Object.defineProperty(Budget.prototype, "on", {
     get: function get() {
-      return this.expense.events.on;
+      return this.expense.list.events.on;
     },
     enumerable: true,
     configurable: true
   });
   Object.defineProperty(Budget.prototype, "trigger", {
     get: function get() {
-      return this.expense.events.trigger;
+      return this.expense.list.events.trigger;
     },
     enumerable: true,
     configurable: true
@@ -723,7 +695,7 @@ function (_super) {
       } //add item to model and indicating model
 
 
-      _this.model.expense.addListItem(expenseItem);
+      _this.model.expense.list.addListItem(expenseItem, "expense");
 
       _this.model.trigger("change");
     };
@@ -791,7 +763,7 @@ function (_super) {
     _this.deleteListItemFromView = function (e) {
       var itemId = e.target.parentElement.getAttribute("data-id");
 
-      _this.model.expense.removeListItem(parseInt(itemId));
+      _this.model.expense.list.removeListItem(parseInt(itemId), "expense");
     };
 
     _this.editListItemFromView = function (e) {
@@ -800,7 +772,7 @@ function (_super) {
 
       var expenseValue = document.getElementById("amount-input"); //finding item with the id from the expense list
 
-      var item = _this.model.expense.expenseList.find(function (current) {
+      var item = _this.model.expense.list.expenseList.find(function (current) {
         return current.id === parseInt(itemId);
       }); //updaing ui
 
@@ -815,16 +787,16 @@ function (_super) {
 
   ExpenseListingView.prototype.template = function () {
     var html = "";
-    this.model.expense.expenseList.forEach(function (item) {
-      html += "\n       <div class=\"expense\">\n        <div class=\"expense-item d-flex justify-content-between align-items-baseline\">\n\n        <h6 class=\"expense-title mb-0 text-uppercase list-item text-left\">" + item.title + "</h6>\n        <h5 class=\"expense-amount mb-0 list-item\">" + item.value + "</h5>\n\n        <div class=\"expense-icons list-item\">\n\n        <a href=\"#\" class=\"edit-icon mx-2\" data-id=\"" + item.id + "\">\n        <i class=\"fas fa-edit\"></i>\n        </a>\n        <a href=\"#\" class=\"delete-icon\" data-id=\"" + item.id + "\">\n        <i class=\"fas fa-trash\"></i>\n        </a>\n        </div>\n        </div>\n    </div>    \n       ";
+    this.model.expense.list.expenseList.forEach(function (item) {
+      html += "\n       <div class=\"expense\">\n        <div class=\"expense-item d-flex justify-content-between align-items-baseline\">\n\n        <h6 class=\"expense-title mb-0 text-uppercase list-item text-left\">" + item.title + "</h6>\n        <h5 class=\"expense-amount mb-0 list-item\">" + item.value + "</h5>\n\n        <div class=\"expense-icons list-item\">\n\n        <a href=\"#\" class=\"edit-icon-expense mx-2\" data-id=\"" + item.id + "\">\n        <i class=\"fas fa-edit\"></i>\n        </a>\n        <a href=\"#\" class=\"delete-icon-expense\" data-id=\"" + item.id + "\">\n        <i class=\"fas fa-trash\"></i>\n        </a>\n        </div>\n        </div>\n    </div>    \n       ";
     });
     return html;
   };
 
   ExpenseListingView.prototype.eventsMap = function () {
     return {
-      "click: .delete-icon": this.deleteListItemFromView,
-      "click: .edit-icon": this.editListItemFromView
+      "click: .delete-icon-expense": this.deleteListItemFromView,
+      "click: .edit-icon-expense": this.editListItemFromView
     };
   };
 
@@ -832,6 +804,94 @@ function (_super) {
 }(View_1.View);
 
 exports.ExpenseListingView = ExpenseListingView;
+},{"./View":"ts/View/View.ts"}],"ts/View/IncomeListingView.ts":[function(require,module,exports) {
+"use strict";
+
+var __extends = this && this.__extends || function () {
+  var _extendStatics = function extendStatics(d, b) {
+    _extendStatics = Object.setPrototypeOf || {
+      __proto__: []
+    } instanceof Array && function (d, b) {
+      d.__proto__ = b;
+    } || function (d, b) {
+      for (var p in b) {
+        if (b.hasOwnProperty(p)) d[p] = b[p];
+      }
+    };
+
+    return _extendStatics(d, b);
+  };
+
+  return function (d, b) {
+    _extendStatics(d, b);
+
+    function __() {
+      this.constructor = d;
+    }
+
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+  };
+}();
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var View_1 = require("./View");
+
+var IncomeListingView =
+/** @class */
+function (_super) {
+  __extends(IncomeListingView, _super);
+
+  function IncomeListingView() {
+    var _this = _super !== null && _super.apply(this, arguments) || this;
+
+    _this.deleteListItemFromViewInc = function (e) {
+      e.preventDefault();
+      var itemId = e.target.parentElement.getAttribute("data-id");
+
+      _this.model.income.list.removeListItem(parseInt(itemId), "income");
+    };
+
+    _this.editListItemFromViewInc = function (e) {
+      var itemId = e.target.parentElement.getAttribute("data-id");
+      var incomeInput = document.getElementById("income-expense-input"); //will fix this any type
+
+      var incomeValue = document.getElementById("income-amount-input"); //finding item with the id from the expense list
+
+      var item = _this.model.income.list.incomeList.find(function (current) {
+        return current.id === parseInt(itemId);
+      }); //updaing ui
+
+
+      incomeInput.value = item.title;
+      incomeValue.value = item.value;
+      incomeInput.setAttribute("data-id", item.id.toString());
+    };
+
+    return _this;
+  }
+
+  IncomeListingView.prototype.template = function () {
+    var html = "";
+    this.model.income.list.incomeList.forEach(function (item) {
+      html += "\n       <div class=\"income\">\n        <div class=\"expense-item d-flex justify-content-between align-items-baseline\">\n\n        <h6 class=\"income-title mb-0 text-uppercase list-item text-left\">" + item.title + "</h6>\n        <h5 class=\"income-amount mb-0 list-item\">" + item.value + "</h5>\n\n        <div class=\"expense-icons list-item\">\n\n        <a href=\"#\" class=\"edit-icon-income mx-2\" data-id=\"" + item.id + "\">\n        <i class=\"fas fa-edit\"></i>\n        </a>\n        <a href=\"#\" class=\"delete-icon-income\" data-id=\"" + item.id + "\">\n        <i class=\"fas fa-trash\"></i>\n        </a>\n        </div>\n        </div>\n    </div>    \n       ";
+    });
+    return html;
+  };
+
+  IncomeListingView.prototype.eventsMap = function () {
+    return {
+      "click: .delete-icon-income": this.deleteListItemFromViewInc,
+      "click: .edit-icon-income": this.editListItemFromViewInc
+    };
+  };
+
+  return IncomeListingView;
+}(View_1.View);
+
+exports.IncomeListingView = IncomeListingView;
 },{"./View":"ts/View/View.ts"}],"ts/View/IncomeAdderView.ts":[function(require,module,exports) {
 "use strict";
 
@@ -875,30 +935,30 @@ function (_super) {
   function IncomeAdderView() {
     var _this = _super !== null && _super.apply(this, arguments) || this;
 
-    _this.addExpense = function () {
+    _this.addIncome = function () {
       //getting dom data
-      var expenseTitleValue = document.getElementById("expense-input").value;
-      var expenseAmountValue = document.getElementById("amount-input").value;
-      var expenseId = document.getElementById("expense-input").getAttribute("data-id");
-      var expenseItem = {}; //validate data first
+      var incomeTitleValue = document.getElementById("income-expense-input").value;
+      var incomeAmountValue = document.getElementById("income-amount-input").value;
+      var incomeId = document.getElementById("income-expense-input").getAttribute("data-id");
+      var incomeItem = {}; //validate data first
 
-      if (_this.validator(expenseTitleValue) && _this.validator(expenseAmountValue)) {
-        if (expenseId) {
+      if (_this.validator(incomeTitleValue) && _this.validator(incomeAmountValue)) {
+        if (incomeId) {
           //add item with id
-          expenseItem.title = expenseTitleValue;
-          expenseItem.value = parseInt(expenseAmountValue);
-          expenseItem.id = parseInt(expenseId);
+          incomeItem.title = incomeTitleValue;
+          incomeItem.value = parseInt(incomeAmountValue);
+          incomeItem.id = parseInt(incomeId);
         } else {
           //add item without id
-          expenseItem.title = expenseTitleValue;
-          expenseItem.value = parseInt(expenseAmountValue);
+          incomeItem.title = incomeTitleValue;
+          incomeItem.value = parseInt(incomeAmountValue);
         }
       } else {
         alert("please enter correct data");
       } //add item to model and indicating model
 
 
-      _this.model.expense.addListItem(expenseItem);
+      _this.model.income.list.addListItem(incomeItem, "income");
 
       _this.model.trigger("change");
     };
@@ -912,7 +972,7 @@ function (_super) {
 
   IncomeAdderView.prototype.eventsMap = function () {
     return {
-      "click: .expense-submit": this.addExpense
+      "click: .income-submit": this.addIncome
     };
   };
 
@@ -963,6 +1023,8 @@ var ExpenseAdderView_1 = require("./ExpenseAdderView");
 
 var ExpenseListingView_1 = require("./ExpenseListingView");
 
+var IncomeListingView_1 = require("./IncomeListingView");
+
 var IncomeAdderView_1 = require("./IncomeAdderView");
 
 var AppView =
@@ -979,7 +1041,8 @@ function (_super) {
         DashboardView: "#dashboardView",
         ExpenseAdderView: "#expenseAdderView",
         ExpenseListingView: "#expense-list",
-        incomeAdderView: "#incomeAdderView"
+        incomeAdderView: "#incomeAdderView",
+        IncomeListingView: "#income-list"
       };
     };
 
@@ -989,6 +1052,7 @@ function (_super) {
       new DashboardView_1.DashboardView(_this.regions.DashboardView, _this.model).render();
       new ExpenseAdderView_1.ExpenseAdderView(_this.regions.ExpenseAdderView, _this.model).render();
       new ExpenseListingView_1.ExpenseListingView(_this.regions.ExpenseListingView, _this.model).render();
+      new IncomeListingView_1.IncomeListingView(_this.regions.IncomeListingView, _this.model).render();
       new IncomeAdderView_1.IncomeAdderView(_this.regions.incomeAdderView, _this.model).render();
     };
 
@@ -1007,7 +1071,7 @@ function (_super) {
 }(View_1.View);
 
 exports.AppView = AppView;
-},{"./View":"ts/View/View.ts","./DashboardView":"ts/View/DashboardView.ts","./BudgetView":"ts/View/BudgetView.ts","./ExpenseAdderView":"ts/View/ExpenseAdderView.ts","./ExpenseListingView":"ts/View/ExpenseListingView.ts","./IncomeAdderView":"ts/View/IncomeAdderView.ts"}],"ts/app.ts":[function(require,module,exports) {
+},{"./View":"ts/View/View.ts","./DashboardView":"ts/View/DashboardView.ts","./BudgetView":"ts/View/BudgetView.ts","./ExpenseAdderView":"ts/View/ExpenseAdderView.ts","./ExpenseListingView":"ts/View/ExpenseListingView.ts","./IncomeListingView":"ts/View/IncomeListingView.ts","./IncomeAdderView":"ts/View/IncomeAdderView.ts"}],"ts/app.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1051,7 +1115,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "64071" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "65053" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

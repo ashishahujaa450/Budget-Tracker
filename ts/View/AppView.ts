@@ -5,6 +5,7 @@ import { DashboardView } from "./DashboardView";
 import { BudgetView } from "./BudgetView";
 import { ExpenseAdderView } from "./ExpenseAdderView";
 import { ExpenseListingView } from "./ExpenseListingView";
+import { IncomeListingView } from "./IncomeListingView";
 import { IncomeAdderView } from "./IncomeAdderView";
 
 export class AppView extends View<Budget> {
@@ -99,7 +100,8 @@ export class AppView extends View<Budget> {
       DashboardView: "#dashboardView",
       ExpenseAdderView: "#expenseAdderView",
       ExpenseListingView: "#expense-list",
-      incomeAdderView: "#incomeAdderView"
+      incomeAdderView: "#incomeAdderView",
+      IncomeListingView: "#income-list"
     };
   };
 
@@ -112,6 +114,7 @@ export class AppView extends View<Budget> {
       this.regions.ExpenseListingView,
       this.model
     ).render();
+    new IncomeListingView(this.regions.IncomeListingView, this.model).render();
     new IncomeAdderView(this.regions.incomeAdderView, this.model).render();
   };
 }

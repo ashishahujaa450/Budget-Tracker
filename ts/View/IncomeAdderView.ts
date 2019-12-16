@@ -24,45 +24,42 @@ export class IncomeAdderView extends View<Budget> {
 
   eventsMap(): { [key: string]: (event: Event) => void } {
     return {
-      "click: .expense-submit": this.addExpense
+      "click: .income-submit": this.addIncome
     };
   }
 
-  addExpense = (): void => {
+  addIncome = (): void => {
     //getting dom data
-    const expenseTitleValue = (<HTMLInputElement>(
-      document.getElementById("expense-input")
+    const incomeTitleValue = (<HTMLInputElement>(
+      document.getElementById("income-expense-input")
     )).value;
-    const expenseAmountValue = (<HTMLInputElement>(
-      document.getElementById("amount-input")
+    const incomeAmountValue = (<HTMLInputElement>(
+      document.getElementById("income-amount-input")
     )).value;
 
-    const expenseId = document
-      .getElementById("expense-input")
+    const incomeId = document
+      .getElementById("income-expense-input")
       .getAttribute("data-id");
-    const expenseItem: ExpenseList = {};
+    const incomeItem: ExpenseList = {};
 
     //validate data first
-    if (
-      this.validator(expenseTitleValue) &&
-      this.validator(expenseAmountValue)
-    ) {
-      if (expenseId) {
+    if (this.validator(incomeTitleValue) && this.validator(incomeAmountValue)) {
+      if (incomeId) {
         //add item with id
-        expenseItem.title = expenseTitleValue;
-        expenseItem.value = parseInt(expenseAmountValue);
-        expenseItem.id = parseInt(expenseId);
+        incomeItem.title = incomeTitleValue;
+        incomeItem.value = parseInt(incomeAmountValue);
+        incomeItem.id = parseInt(incomeId);
       } else {
         //add item without id
-        expenseItem.title = expenseTitleValue;
-        expenseItem.value = parseInt(expenseAmountValue);
+        incomeItem.title = incomeTitleValue;
+        incomeItem.value = parseInt(incomeAmountValue);
       }
     } else {
       alert("please enter correct data");
     }
 
     //add item to model and indicating model
-    this.model.expense.addListItem(expenseItem);
+    this.model.income.list.addListItem(incomeItem, "income");
     this.model.trigger("change");
   };
 }

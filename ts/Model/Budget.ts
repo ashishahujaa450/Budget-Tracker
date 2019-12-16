@@ -27,22 +27,22 @@ export class Budget {
 
   //delegating methods to expense class
   public get addListItem() {
-    return this.expense.addListItem;
+    return this.expense.list.addListItem;
   }
 
   public get removeListItem() {
-    return this.expense.removeListItem;
+    return this.expense.list.removeListItem;
   }
 
   public get updateListItem() {
-    return this.expense.updateListItem;
+    return this.expense.list.updateListItem;
   }
 
   public get on() {
-    return this.expense.events.on;
+    return this.expense.list.events.on;
   }
 
   public get trigger() {
-    return this.expense.events.trigger;
+    return this.expense.list.events.trigger;
   }
 }
