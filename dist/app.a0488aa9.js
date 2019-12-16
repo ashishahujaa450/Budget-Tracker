@@ -690,7 +690,8 @@ view.render();
 dashboard.render();
 expenseAdder.render();
 expenseListing.render();
-},{"./Model/Budget":"ts/Model/Budget.ts","./View/DashboardView":"ts/View/DashboardView.ts","./View/BudgetView":"ts/View/BudgetView.ts","./View/ExpenseAdderView":"ts/View/ExpenseAdderView.ts","./View/ExpenseListingView":"ts/View/ExpenseListingView.ts"}],"C:/Users/De-coder/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+console.log("test commit from another account");
+},{"./Model/Budget":"ts/Model/Budget.ts","./View/DashboardView":"ts/View/DashboardView.ts","./View/BudgetView":"ts/View/BudgetView.ts","./View/ExpenseAdderView":"ts/View/ExpenseAdderView.ts","./View/ExpenseListingView":"ts/View/ExpenseListingView.ts"}],"C:/Users/jtuser/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -718,7 +719,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "61095" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "56696" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
@@ -894,5 +895,5 @@ function hmrAcceptRun(bundle, id) {
     return true;
   }
 }
-},{}]},{},["C:/Users/De-coder/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js","ts/app.ts"], null)
+},{}]},{},["C:/Users/jtuser/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js","ts/app.ts"], null)
 //# sourceMappingURL=/app.a0488aa9.js.map
