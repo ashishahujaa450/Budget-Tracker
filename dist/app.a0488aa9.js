@@ -258,6 +258,108 @@ function () {
 }();
 
 exports.Expense = Expense;
+},{"./Eventing":"ts/Model/Eventing.ts"}],"ts/Model/Income.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var Eventing_1 = require("./Eventing");
+
+var Income =
+/** @class */
+function () {
+  function Income() {
+    var _this = this;
+
+    this.totalIncome = 0;
+    this.IncomeList = [];
+    this.events = new Eventing_1.Eventing(); //bind change
+
+    this.bindChange = function () {
+      _this.events.on("change", function () {
+        _this.updateTotalIncome();
+      });
+    }; //updating total expense
+
+
+    this.updateTotalIncome = function () {
+      var expense = 0;
+
+      _this.IncomeList.forEach(function (item) {
+        expense += item.value;
+      });
+
+      _this.totalIncome = expense;
+    }; //add list item to expense list
+
+
+    this.addListItem = function (item) {
+      //checking if already have id than just update the existed item
+      if (item.id >= 0) {
+        var currentItem = _this.IncomeList.find(function (elm) {
+          return elm.id === item.id;
+        }); //update item to current item
+
+
+        Object.assign(currentItem, item);
+      } else {
+        //else add new itme
+        if (item.value && item.title) {
+          //attach unique id
+          if (_this.IncomeList.length > 0) {
+            item.id = _this.IncomeList[_this.IncomeList.length - 1].id + 1;
+          } else {
+            item.id = 0;
+          }
+
+          _this.IncomeList.push(item);
+        } else {
+          throw new Error("please enter correct data");
+        }
+      } //trigger app change event
+
+
+      _this.events.trigger("change");
+    }; //remove list item from expense list
+
+
+    this.removeListItem = function (id) {
+      var index = _this.IncomeList.findIndex(function (item) {
+        return item.id === id;
+      });
+
+      var item = _this.IncomeList.splice(index, 1); //trigger app change event
+
+
+      _this.events.trigger("change");
+    }; //update existing list item from expense list
+
+
+    this.updateListItem = function (id, updatedItem) {
+      var replaceWith = _this.IncomeList.find(function (item) {
+        return item.id === id;
+      });
+
+      if (replaceWith) {
+        replaceWith.title = updatedItem.title;
+        replaceWith.value = updatedItem.value;
+      } else {
+        throw new Error("trying to update the item which is not existed!");
+      } //trigger app change event
+
+
+      _this.events.trigger("change");
+    };
+
+    this.bindChange();
+  }
+
+  return Income;
+}();
+
+exports.Income = Income;
 },{"./Eventing":"ts/Model/Eventing.ts"}],"ts/Model/Budget.ts":[function(require,module,exports) {
 "use strict";
 
@@ -266,6 +368,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 
 var Expense_1 = require("./Expense");
+
+var Income_1 = require("./Income");
 
 var Budget =
 /** @class */
@@ -276,6 +380,7 @@ function () {
     this.data = data;
     this.balance = 0;
     this.expense = new Expense_1.Expense();
+    this.income = new Income_1.Income();
 
     this.bindChange = function () {
       _this.on("change", function () {
@@ -331,7 +436,7 @@ function () {
 }();
 
 exports.Budget = Budget;
-},{"./Expense":"ts/Model/Expense.ts"}],"ts/View/View.ts":[function(require,module,exports) {
+},{"./Expense":"ts/Model/Expense.ts","./Income":"ts/Model/Income.ts"}],"ts/View/View.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -727,6 +832,94 @@ function (_super) {
 }(View_1.View);
 
 exports.ExpenseListingView = ExpenseListingView;
+},{"./View":"ts/View/View.ts"}],"ts/View/IncomeAdderView.ts":[function(require,module,exports) {
+"use strict";
+
+var __extends = this && this.__extends || function () {
+  var _extendStatics = function extendStatics(d, b) {
+    _extendStatics = Object.setPrototypeOf || {
+      __proto__: []
+    } instanceof Array && function (d, b) {
+      d.__proto__ = b;
+    } || function (d, b) {
+      for (var p in b) {
+        if (b.hasOwnProperty(p)) d[p] = b[p];
+      }
+    };
+
+    return _extendStatics(d, b);
+  };
+
+  return function (d, b) {
+    _extendStatics(d, b);
+
+    function __() {
+      this.constructor = d;
+    }
+
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+  };
+}();
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var View_1 = require("./View");
+
+var IncomeAdderView =
+/** @class */
+function (_super) {
+  __extends(IncomeAdderView, _super);
+
+  function IncomeAdderView() {
+    var _this = _super !== null && _super.apply(this, arguments) || this;
+
+    _this.addExpense = function () {
+      //getting dom data
+      var expenseTitleValue = document.getElementById("expense-input").value;
+      var expenseAmountValue = document.getElementById("amount-input").value;
+      var expenseId = document.getElementById("expense-input").getAttribute("data-id");
+      var expenseItem = {}; //validate data first
+
+      if (_this.validator(expenseTitleValue) && _this.validator(expenseAmountValue)) {
+        if (expenseId) {
+          //add item with id
+          expenseItem.title = expenseTitleValue;
+          expenseItem.value = parseInt(expenseAmountValue);
+          expenseItem.id = parseInt(expenseId);
+        } else {
+          //add item without id
+          expenseItem.title = expenseTitleValue;
+          expenseItem.value = parseInt(expenseAmountValue);
+        }
+      } else {
+        alert("please enter correct data");
+      } //add item to model and indicating model
+
+
+      _this.model.expense.addListItem(expenseItem);
+
+      _this.model.trigger("change");
+    };
+
+    return _this;
+  }
+
+  IncomeAdderView.prototype.template = function () {
+    return "\n    <form id=\"income-form\" class=\"income-form\">\n        <h5 class=\"text-capitalize\">please enter your Income</h5>\n        <div class=\"form-group\">\n        <input type=\"text\" class=\"form-control expense-input\" id=\"income-expense-input\">\n        </div>\n        <h5 class=\"text-capitalize\">please enter Income amount</h5>\n        <div class=\"form-group\">\n        <input type=\"number\" class=\"form-control expense-input\" id=\"income-amount-input\">\n        </div>\n        <!-- submit button -->\n        <button type=\"submit\" class=\"btn text-capitalize income-submit\" id=\"income-submit\">\n        add Income\n        </button>\n    </form>\n        ";
+  };
+
+  IncomeAdderView.prototype.eventsMap = function () {
+    return {
+      "click: .expense-submit": this.addExpense
+    };
+  };
+
+  return IncomeAdderView;
+}(View_1.View);
+
+exports.IncomeAdderView = IncomeAdderView;
 },{"./View":"ts/View/View.ts"}],"ts/View/AppView.ts":[function(require,module,exports) {
 "use strict";
 
@@ -770,6 +963,8 @@ var ExpenseAdderView_1 = require("./ExpenseAdderView");
 
 var ExpenseListingView_1 = require("./ExpenseListingView");
 
+var IncomeAdderView_1 = require("./IncomeAdderView");
+
 var AppView =
 /** @class */
 function (_super) {
@@ -783,22 +978,25 @@ function (_super) {
         BudgetView: "#budgetView",
         DashboardView: "#dashboardView",
         ExpenseAdderView: "#expenseAdderView",
-        ExpenseListingView: "#expense-list"
+        ExpenseListingView: "#expense-list",
+        incomeAdderView: "#incomeAdderView"
       };
     };
 
     _this.onRender = function () {
+      console.log(_this.model);
       new BudgetView_1.BudgetView(_this.regions.BudgetView, _this.model).render();
       new DashboardView_1.DashboardView(_this.regions.DashboardView, _this.model).render();
       new ExpenseAdderView_1.ExpenseAdderView(_this.regions.ExpenseAdderView, _this.model).render();
       new ExpenseListingView_1.ExpenseListingView(_this.regions.ExpenseListingView, _this.model).render();
+      new IncomeAdderView_1.IncomeAdderView(_this.regions.incomeAdderView, _this.model).render();
     };
 
     return _this;
   }
 
   AppView.prototype.template = function () {
-    return "\n   \n        <div class=\"row\">\n            <div class=\"col-11 mx-auto pt-3\">\n                <!-- title -->\n                <h3 class=\"text-uppercase mb-4\">budget app</h3>\n                <div class=\"row\">\n                    <div class=\"col-md-5 my-3 budget-view\" id=\"budgetView\">\n                        <!-- budget feedback -->\n                        <div class=\"budget-feedback alert alert-danger text-capitalize\">\n                            budget feedback\n                        </div>\n                        <!-- budget form -->\n                    </div>\n                    <div class=\"col-md-7\" id=\"dashboardView\">\n                        <!-- app info -->\n                    </div>\n                </div>\n\n                <div class=\"row\">\n                    <div class=\"col-md-5 my-3\" id=\"expenseAdderView\">\n                        <!-- expense feedback -->\n                        <div class=\"expense-feedback alert alert-danger text-capitalize\">\n                            expense feedback\n                        </div>\n                        <!-- expense form -->\n                    </div>\n                    <div class=\"col-md-7 my-3\">\n                        <!-- expense list -->\n                        <div class=\"expense-list\" id=\"expense-list\">\n                            <div class=\"expense-list__info d-flex justify-content-between text-capitalize\">\n                                <h5 class=\"list-item\">expense title</h5>\n                                <h5 class=\"list-item\">expense value</h5>\n                                <h5 class=\"list-item\"></h5>\n                            </div>\n                        </div>\n                    </div>\n                </div>\n            </div>\n        </div>\n      ";
+    return "\n   \n    <div class=\"row\">\n    <div class=\"col-11 mx-auto pt-3\">\n        <!-- title -->\n        <h3 class=\"text-uppercase mb-4\">budget app</h3>\n        <div class=\"row\">\n            <div class=\"col-md-4 my-3 budget-view\" id=\"budgetView\">\n                <!-- budget feedback -->\n                <div class=\"budget-feedback alert alert-danger text-capitalize\">\n                    budget feedback\n                </div>\n                <!-- budget form -->\n            </div>\n            <div class=\"col-md-8\" id=\"dashboardView\">\n                <!-- app info -->\n            </div>\n        </div>\n\n        <div class=\"row\">\n            <div class=\"col-md-4 my-3\" id=\"expenseAdderView\">\n                <!-- expense feedback -->\n                <div class=\"expense-feedback alert alert-danger text-capitalize\">\n                    expense feedback\n                </div>\n                <!-- expense form -->\n            </div>\n            <div class=\"col-md-8 my-3\">\n                <div class=\"expense-list__info d-flex justify-content-between text-capitalize\">\n                    <h5 class=\"list-item\">expense title</h5>\n                    <h5 class=\"list-item\">expense value</h5>\n                    <h5 class=\"list-item\"></h5>\n                </div>\n                <!-- expense list -->\n                <div class=\"row\">\n\n                    <div class=\"col-md-6\">\n                        <div class=\"expense-list\" id=\"expense-list\">\n\n                        </div>\n                    </div>\n\n                    <div class=\"col-md-6\">\n                        <div class=\"income-list\" id=\"income-list\">\n\n                        </div>\n                    </div>\n\n                </div>\n            </div>\n        </div>\n\n        <div class=\"row\">\n            <div class=\"col-md-4 my-3\" id=\"incomeAdderView\">\n                <!-- expense feedback -->\n                <div class=\"expense-feedback alert alert-danger text-capitalize\">\n                    expense feedback\n                </div>\n                <!-- expense form -->\n            </div>\n        </div>\n    </div>\n</div>\n      ";
   };
 
   AppView.prototype.eventsMap = function () {
@@ -809,7 +1007,7 @@ function (_super) {
 }(View_1.View);
 
 exports.AppView = AppView;
-},{"./View":"ts/View/View.ts","./DashboardView":"ts/View/DashboardView.ts","./BudgetView":"ts/View/BudgetView.ts","./ExpenseAdderView":"ts/View/ExpenseAdderView.ts","./ExpenseListingView":"ts/View/ExpenseListingView.ts"}],"ts/app.ts":[function(require,module,exports) {
+},{"./View":"ts/View/View.ts","./DashboardView":"ts/View/DashboardView.ts","./BudgetView":"ts/View/BudgetView.ts","./ExpenseAdderView":"ts/View/ExpenseAdderView.ts","./ExpenseListingView":"ts/View/ExpenseListingView.ts","./IncomeAdderView":"ts/View/IncomeAdderView.ts"}],"ts/app.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -853,7 +1051,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "56696" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "64071" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

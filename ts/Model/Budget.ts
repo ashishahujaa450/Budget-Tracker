@@ -1,4 +1,5 @@
 import { Expense } from "./Expense";
+import { Income } from "./Income";
 
 export interface BudgetProps {
   totalBudget?: number;
@@ -7,6 +8,7 @@ export interface BudgetProps {
 export class Budget {
   public balance: number = 0;
   public expense: Expense = new Expense();
+  public income: Income = new Income();
 
   constructor(public data: BudgetProps) {
     this.bindChange();
