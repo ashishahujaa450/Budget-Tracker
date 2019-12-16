@@ -1,14 +1,15 @@
 import { Eventing } from "./Eventing";
 import { List } from "./List";
 
-export interface ExpenseList {
+export interface IncomeList {
   title?: string;
   value?: number;
   id?: number;
 }
 
-export class Expense {
-  public totalExpense: number = 0;
+export class Income {
+  public totalIncome: number = 0;
+
   public events: Eventing = new Eventing();
   public list: List = new List();
 
@@ -19,19 +20,17 @@ export class Expense {
   //bind change
   private bindChange = (): void => {
     this.list.events.on("change", () => {
-      this.updateTotalExpense();
+      this.updateTotalIncome();
     });
   };
 
   //updating total expense
-  private updateTotalExpense = (): void => {
-    let expense: number = 0;
-    this.list.expenseList.forEach(item => {
-      expense += item.value;
+  private updateTotalIncome = (): void => {
+    let income: number = 0;
+    this.list.incomeList.forEach(item => {
+      income += item.value;
     });
 
-    this.totalExpense = expense;
+    this.totalIncome = income;
   };
-
-  //add list item to expense list
 }

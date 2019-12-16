@@ -1,4 +1,5 @@
 import { Expense } from "./Expense";
+import { Income } from "./Income";
 
 export interface BudgetProps {
   totalBudget?: number;
@@ -7,6 +8,7 @@ export interface BudgetProps {
 export class Budget {
   public balance: number = 0;
   public expense: Expense = new Expense();
+  public income: Income = new Income();
 
   constructor(public data: BudgetProps) {
     this.bindChange();
@@ -25,22 +27,22 @@ export class Budget {
 
   //delegating methods to expense class
   public get addListItem() {
-    return this.expense.addListItem;
+    return this.expense.list.addListItem;
   }
 
   public get removeListItem() {
-    return this.expense.removeListItem;
+    return this.expense.list.removeListItem;
   }
 
   public get updateListItem() {
-    return this.expense.updateListItem;
+    return this.expense.list.updateListItem;
   }
 
   public get on() {
-    return this.expense.events.on;
+    return this.expense.list.events.on;
   }
 
   public get trigger() {
-    return this.expense.events.trigger;
+    return this.expense.list.events.trigger;
   }
 }

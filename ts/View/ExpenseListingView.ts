@@ -5,7 +5,7 @@ export class ExpenseListingView extends View<Budget> {
   template(): string {
     let html = ``;
 
-    this.model.expense.expenseList.forEach(item => {
+    this.model.expense.list.expenseList.forEach(item => {
       html += `
        <div class="expense">
         <div class="expense-item d-flex justify-content-between align-items-baseline">
@@ -15,10 +15,10 @@ export class ExpenseListingView extends View<Budget> {
 
         <div class="expense-icons list-item">
 
-        <a href="#" class="edit-icon mx-2" data-id="${item.id}">
+        <a href="#" class="edit-icon-expense mx-2" data-id="${item.id}">
         <i class="fas fa-edit"></i>
         </a>
-        <a href="#" class="delete-icon" data-id="${item.id}">
+        <a href="#" class="delete-icon-expense" data-id="${item.id}">
         <i class="fas fa-trash"></i>
         </a>
         </div>
@@ -32,14 +32,14 @@ export class ExpenseListingView extends View<Budget> {
 
   eventsMap(): { [key: string]: (event: Event) => void } {
     return {
-      "click: .delete-icon": this.deleteListItemFromView,
-      "click: .edit-icon": this.editListItemFromView
+      "click: .delete-icon-expense": this.deleteListItemFromView,
+      "click: .edit-icon-expense": this.editListItemFromView
     };
   }
 
   deleteListItemFromView = (e): void => {
     const itemId: string = e.target.parentElement.getAttribute("data-id");
-    this.model.expense.removeListItem(parseInt(itemId));
+    this.model.expense.list.removeListItem(parseInt(itemId), "expense");
   };
 
   editListItemFromView = (e): void => {
@@ -53,9 +53,11 @@ export class ExpenseListingView extends View<Budget> {
     const expenseValue: any = document.getElementById("amount-input");
 
     //finding item with the id from the expense list
-    const item = this.model.expense.expenseList.find((current): boolean => {
-      return current.id === parseInt(itemId);
-    });
+    const item = this.model.expense.list.expenseList.find(
+      (current): boolean => {
+        return current.id === parseInt(itemId);
+      }
+    );
 
     //updaing ui
     expenseInput.value = item.title;

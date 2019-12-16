@@ -22,7 +22,8 @@ body {
     border-radius: 0.25rem;
 }
 
-.expense-form {
+.expense-form,
+.income-form {
     border: 0.15rem solid var(--mainRed);
     padding: 1rem;
     border-radius: 0.25rem;
@@ -34,13 +35,15 @@ body {
     color: var(--mainGreen);
 }
 
-.expense-submit {
+.expense-submit,
+.income-submit {
     background: transparent;
     border: 0.1rem solid var(--mainRed);
     color: var(--mainRed);
 }
 
-.expense-submit:hover {
+.expense-submit:hover,
+.income-submit:hover {
     background: var(--mainRed);
     color: var(--mainWhite);
 }
@@ -54,7 +57,8 @@ body {
     border: 0.05rem solid var(--mainGreen) !important;
 }
 
-.expense-input {
+.expense-input,
+.income-input {
     border: 0.05rem solid var(--mainRed) !important;
 }
 
